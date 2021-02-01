@@ -1,10 +1,28 @@
-version: 2.1
-
+version: 2
 jobs:
-  build:
-    machine:
-      resource_class: gpu.nvidia.small
-      image: ubuntu-1604-cuda-10.1:201909-23
+  tslint:
+    docker:
+      - image: circleci/node
     steps:
-      - run: nvidia-smi
-      - run: docker run --gpus all nvidia/cuda:9.0-base nvidia-smi
+      - checkout
+      - run:
+          command: |
+            cd js/
+            npm install
+            npm run lint
+  black:
+    docker:
+      - image: circleci/python
+    steps:
+      - checkout
+      - run:
+          command: |
+            cd
+            sudo pip install black
+            black --check $(pwd)/
+workflows:
+  version: 2
+  style_check:
+    jobs:
+      - tslint
+      - black
